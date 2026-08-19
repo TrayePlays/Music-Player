@@ -1,0 +1,24 @@
+{
+    "format_version": "1.26.0",
+    "minecraft:item": {
+        "description": {
+            "identifier": "song:music_box",
+            "menu_category": {
+                "category": "items"
+            }
+        },
+        "components": {
+            "minecraft:display_name": {
+                "value": "Music Box"
+            },
+            "minecraft:icon": {
+                "textures": {
+                    "default": "music_box"
+                }
+            },
+            "minecraft:entity_placer": {
+                "entity": "song:music_box_entity"
+            }
+        }
+    }
+}

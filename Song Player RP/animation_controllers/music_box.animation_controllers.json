@@ -1,0 +1,31 @@
+{
+	"format_version": "1.19.0",
+	"animation_controllers": {
+		"controller.animation.music_box.default": {
+			"initial_state": "default",
+			"states": {
+				"default": {
+					"animations": ["spawn"],
+					"transitions": [
+						{"play": "q.all_animations_finished && q.property('song:is_playing')"},
+						{"stop": "q.all_animations_finished && !q.property('song:is_playing')"}
+					],
+					"blend_transition": 0.2,
+					"blend_via_shortest_path": true
+				},
+				"play": {
+					"animations": ["start"],
+					"transitions": [
+						{"stop": "!q.property('song:is_playing')"}
+					]
+				},
+				"stop": {
+					"animations": ["stop"],
+					"transitions": [
+						{"play": "q.property('song:is_playing')"}
+					]
+				}
+			}
+		}
+	}
+}

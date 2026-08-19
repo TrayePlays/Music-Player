@@ -1,0 +1,53 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "Song Player BP V0.1",
+        "description": "-by TrayePlays ty Cyanwalf for the textures",
+        "min_engine_version": [
+            1,
+            21,
+            0
+        ],
+        "uuid": "76b7baa0-34f0-4cb0-bf0d-ea1ce59d7cf3",
+        "version": [
+            1,
+            0,
+            1
+        ]
+    },
+    "metadata": {
+        "product_type": "addon"
+    },
+    "modules": [
+        {
+            "type": "data",
+            "uuid": "842f380b-b39a-4679-a925-891657448950",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        },
+        {
+            "type": "script",
+            "language": "javascript",
+            "uuid": "df0635ad-5e36-4edc-9eff-bf0f8f84132f",
+            "entry": "scripts/main.js",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "2.9.0"
+        },
+        {
+            "module_name": "@minecraft/server-ui",
+            "version": "2.1.0"
+        }
+    ]
+}

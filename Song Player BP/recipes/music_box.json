@@ -1,0 +1,31 @@
+{
+    "format_version": "1.20.10",
+    "minecraft:recipe_shaped": {
+        "description": {
+            "identifier": "song:music_box"
+        },
+        "tags": [
+            "crafting_table"
+        ],
+        "pattern": [
+            "g",
+            "n"
+        ],
+        "key": {
+            "g": {
+                "item": "minecraft:gold_ingot"
+            },
+            "n": {
+                "item": "minecraft:noteblock"
+            }
+        },
+        "unlock": [
+            {
+                "item": "minecraft:noteblock"
+            }
+        ],
+        "result": {
+            "item": "song:music_box"
+        }
+    }
+}

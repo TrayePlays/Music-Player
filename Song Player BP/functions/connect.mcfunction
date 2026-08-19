@@ -1,0 +1,1 @@
+script debugger connect traye.ddns.net

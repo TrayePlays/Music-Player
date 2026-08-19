@@ -1,0 +1,18 @@
+{
+    "resource_pack_name": "Song Player RP",
+    "texture_name": "atlas.items",
+    "texture_data": {
+        "browse": {
+            "textures": "textures/items/browse"
+        },
+        "manage": {
+            "textures": "textures/items/settings"
+        },
+        "stop": {
+            "textures": "textures/items/stop"
+        },
+        "music_box": {
+            "textures": "textures/items/music_box"
+        }
+    }
+}

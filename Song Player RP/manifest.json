@@ -1,0 +1,29 @@
+{
+	"format_version": 2,
+	"header": {
+		"name": "Song Player RP V0.1",
+		"description": "-by TrayePlays ty Cyanwalf for the textures",
+		"min_engine_version": [
+			1,
+			21,
+			0
+		],
+		"uuid": "3e172821-4607-43c7-84d4-b5cbfdbe290d",
+		"version": [
+			1,
+			0,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "resources",
+			"uuid": "d564c149-7f7b-4797-bf52-c9e2b5f8e048",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	]
+}

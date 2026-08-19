@@ -1,0 +1,27 @@
+{
+    "format_version": "1.10.0",
+    "minecraft:client_entity": {
+        "description": {
+            "identifier": "song:music_box_entity",
+            "animations": {
+                "default": "controller.animation.music_box.default",
+                "start": "animation.music_box.start",
+                "stop": "animation.music_box.stop",
+                "spawn": "animation.music_box.spawn"
+            },
+            "geometry": {
+                "default": "geometry.music_box"
+            },
+            "materials": {
+                "default": "entity_alphatest"
+            },
+            "textures": {
+                "default": "textures/entity/music_box"
+            },
+            "scripts": {
+                "animate": ["default"]
+            },
+            "render_controllers": ["controller.render.default"]
+        }
+    }
+}

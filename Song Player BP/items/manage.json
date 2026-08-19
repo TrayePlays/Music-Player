@@ -1,0 +1,17 @@
+{
+    "format_version": "1.26.0",
+    "minecraft:item": {
+        "description": {
+            "identifier": "song:manage",
+            "menu_category": {
+                "category": "items"
+            }
+        },
+        "components": {
+            "minecraft:display_name": {
+                "value": "Manage Song"
+            },
+            "minecraft:icon": "manage"
+        }
+    }
+}
