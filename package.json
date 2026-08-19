@@ -1,0 +1,20 @@
+{
+  "name": "music-player",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/TrayePlays/Music-Player#readme",
+  "bugs": {
+    "url": "https://github.com/TrayePlays/Music-Player/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrayePlays/Music-Player.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "watch": "cd \"Song Player BP\" && tsc --watch"
+  }
+}

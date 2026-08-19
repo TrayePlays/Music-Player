@@ -64,12 +64,14 @@ export enum SetActions {
 interface HiveMindAPISettings {
     namespace?: string,
     scriptEvent?: boolean
-    logFailures?: boolean
+    logFailures?: boolean,
+    onConnect?: () => void,
 }
 
 export class HivemindAPI {
     readonly apiName: string;
     readonly namespace: string;
+    private onConnect?: () => void;
     private pendingRequests: Map<string, {
         callback: (response: ServerResponse, done?: boolean) => void;
         onProgress?: (chunk: number, totalChunks: number) => void;
@@ -87,7 +89,7 @@ export class HivemindAPI {
      * 
      * @warn Namespace MUST have no spaces!!!
      */
-    constructor(apiName: string, settings: HiveMindAPISettings = { namespace: "hivemind", scriptEvent: true, logFailures: true }) {
+    constructor(apiName: string, settings: HiveMindAPISettings = { namespace: "hivemind", scriptEvent: true, logFailures: true, onConnect: undefined }) {
         if (settings.logFailures === undefined) settings.logFailures = true;
         if (settings.namespace === undefined) settings.namespace = "hivemind";
         if (settings.scriptEvent === undefined) settings.scriptEvent = true;
@@ -99,6 +101,7 @@ export class HivemindAPI {
         this.namespace = settings.namespace;
         this.setupListeners();
         this.initSetup();
+        this.onConnect = settings.onConnect;
         this.loadTick = system.currentTick;
     }
 
@@ -122,7 +125,6 @@ export class HivemindAPI {
         const responses = this.responses;
         const pendingRequests = this.pendingRequests;
         const scriptEvent = this.scriptEvent;
-
         if (scriptEvent) {
             system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity }) => {
                 const origin = { sourceEntity, sourceType: CustomCommandSource.Entity };
@@ -176,12 +178,18 @@ export class HivemindAPI {
                 customCommandRegistry.registerCommand(set, setCMD);
             })
         }
-        function purposeCMD(origin: CustomCommandOrigin): CustomCommandResult {
+        // Had to change this to a const for the this parameter.
+        const purposeCMD = (origin: CustomCommandOrigin): CustomCommandResult => {
+            const connect = this.onConnect
             world.setDynamicProperty(`hivemindResponse`, JSON.stringify({
                 version: VERSION,
                 name,
                 scriptEvent
             }));
+            if (connect) {
+                connect();
+            }
+            console.warn("connected?")
             return { status: CustomCommandStatus.Success };
         }
 

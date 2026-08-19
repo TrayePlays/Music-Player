@@ -1,4 +1,4 @@
-import { Block, Entity, MolangVariableMap, Player, system, Vector3, world } from "@minecraft/server";
+import { Entity, MolangVariableMap, Player, system, Vector3, world } from "@minecraft/server";
 import { InputKeys } from "rhythm";
 import { decompressLZW, formatTime } from "utils";
 
