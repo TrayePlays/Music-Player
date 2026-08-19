@@ -21,13 +21,14 @@ system.run(() => {
 })
 
 async function initialConnect() {
+    const noUpdateMessage = world.getDynamicProperty("updateMessage") as boolean ?? false;
+    if (noUpdateMessage == true) return;
     const updateReq = await api.sendHttpRequest("https://raw.githubusercontent.com/TrayePlays/Music-Player/main/version.json")
 
     if (updateReq.status == ServerStatusResponse.Success) {
-        const data = JSON.parse(updateReq.getData()) as { version: number, updateMessage: string };
-        console.warn(updateReq.getData());
+        const data = JSON.parse(updateReq.getData()) as { version: number };
         if (data.version > SONG_PLAYER_VERSION) {
-            world.sendMessage(data.updateMessage);
+            world.sendMessage(`\n§cThis version of Song Player is outdated, Please update! §7(/song:settings to disable message)`);
         }
     }
 

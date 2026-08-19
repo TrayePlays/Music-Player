@@ -992,6 +992,7 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     form.toggle("Only owners and creative can break music boxes?", { defaultValue: world.getDynamicProperty("breakMusicBoxRestricted") as boolean ?? false });
     form.toggle("Members allowed to use /song:browse", { defaultValue: world.getDynamicProperty("memberBrowse") as boolean ?? true });
     form.toggle("Members allowed to use /song:manage", { defaultValue: world.getDynamicProperty("memberManage") as boolean ?? true });
+    form.toggle("Remove Update Message", { defaultValue: world.getDynamicProperty("updateMessage") as boolean ?? false })
     form.submitButton("Save");
     const { canceled, formValues } = await form.show(player)
     if (canceled || formValues == undefined) return;
@@ -1000,6 +1001,7 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     world.setDynamicProperty("breakMusicBoxRestricted", formValues[1]);
     world.setDynamicProperty("memberBrowse", formValues[2]);
     world.setDynamicProperty("memberManage", formValues[3]);
+    world.setDynamicProperty("updateMessage", formValues[4]);
 }
 
 world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
@@ -1013,11 +1015,5 @@ world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
             return;
         }
         openSongManagerUI(player);
-    }
-    if (itemStack.typeId == "minecraft:stick") {
-        api.sendHttpRequest("https://dummyjson.com/products", {}, undefined, 50, (c, total) => {
-            console.warn(c, total)
-            player.onScreenDisplay.setActionBar(`Progress: ${((c / total) * 100).toFixed(2)}%`)
-        });
     }
 })
