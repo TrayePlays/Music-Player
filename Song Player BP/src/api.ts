@@ -189,7 +189,6 @@ export class HivemindAPI {
             if (connect) {
                 connect();
             }
-            console.warn("connected?")
             return { status: CustomCommandStatus.Success };
         }
 
@@ -240,7 +239,6 @@ export class HivemindAPI {
                     }
                 }
             } else if (status == ServerStatusResponse.Running) {
-                console.warn("runnin?")
                 const pending = pendingRequests.get(id);
 
                 if (pending) {
