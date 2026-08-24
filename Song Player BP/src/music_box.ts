@@ -5,7 +5,7 @@ world.afterEvents.playerInteractWithBlock.subscribe(({ beforeItemStack, player, 
     if (beforeItemStack?.typeId == "song:music_box") {
         const spawnedEntity = block.dimension.getEntities({ maxDistance: 5, closest: 1, type: "song:music_box_entity", location: block.location })[0]
         if (!spawnedEntity) return;
-        block.dimension.playSound("place.wood", block.location)
+        block?.dimension?.playSound("place.wood", block.location)
         spawnedEntity.setDynamicProperty("initialLocation", spawnedEntity.location)
         spawnedEntity.setDynamicProperty("owner", player.id);
     }
@@ -21,8 +21,8 @@ world.afterEvents.entityHitEntity.subscribe(({ damagingEntity, hitEntity }) => {
             try {
                 if (player.getGameMode() != GameMode.Creative) hitEntity.dimension.spawnItem(new ItemStack("song:music_box"), hitEntity.location);
             } catch { };
-            hitEntity.dimension.playSound("dig.wood", hitEntity.location)
-            hitEntity.remove();
+            hitEntity?.dimension?.playSound("dig.wood", hitEntity.location)
+            hitEntity?.remove();
         }
 
         if (ownerId != undefined) {
@@ -56,15 +56,15 @@ system.runInterval(() => {
                 try {
                     entity.dimension.spawnItem(new ItemStack("song:music_box"), entity.location);
                 } catch { };
-                entity.dimension.playSound("dig.wood", entity.location)
-                entity.remove();
+                entity?.dimension.playSound("dig.wood", entity.location)
+                entity?.remove();
             }
             if (entity.dimension.getBlock(entity.location)?.typeId != "minecraft:air") {
                 try {
                     entity.dimension.spawnItem(new ItemStack("song:music_box"), entity.location);
                 } catch { };
-                entity.dimension.playSound("dig.wood", entity.location)
-                entity.remove();
+                entity?.dimension.playSound("dig.wood", entity.location)
+                entity?.remove();
             }
         }
     }

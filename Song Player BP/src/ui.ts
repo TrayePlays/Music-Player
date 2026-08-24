@@ -38,7 +38,7 @@ async function downloadSong(id: string, title?: string, onProgress?: (chunk: num
         if (!title) {
             const titleReq = await api.sendHttpRequest(formatted);
 
-            if (titleReq.status != ServerStatusResponse.Success) reject("Failed HTTP Request");
+            if (titleReq.status != ServerStatusResponse.Success) resolve("Failed HTTP Request");
 
             const html = decodeHtml(titleReq.data);
             const titleMatch = html.match(/<span>(.*?)<\/span>/);
@@ -47,7 +47,7 @@ async function downloadSong(id: string, title?: string, onProgress?: (chunk: num
 
         const songReq = await api.sendMidiRequest(formatted, undefined, 50, onProgress);
 
-        if (songReq.status != ServerStatusResponse.Success) reject("Failed MIDI Request");
+        if (songReq.status != ServerStatusResponse.Success) resolve("Failed MIDI Request");
 
         const lzw = compressLZW(songReq.data);
         const chunks = splitBytes(lzw);
@@ -238,8 +238,13 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     player.onScreenDisplay.setActionBar(`Downloading ${song.title} §7(${percent}%)`)
                 });
                 if (ready != "Done!") {
-                    label1.title.setData(`§cFailed to download song. Are you connected? §7(/function connect)`)
-                    await sleep(30);
+                    const testReq = await api.sendHttpRequest("https://dummyjson.com/quotes/1", {}, undefined, 50)
+                    if (testReq.status == ServerStatusResponse.Success) {
+                        label1.title.setData(`§cFailed to download song.\n§7(invalid song)`)
+                    } else {
+                        label1.title.setData(`§cFailed to download song.\nAre you connected? §7(/function connect)`)
+                    }
+                    await sleep(50);
                     label1.title.setData(`Song: ${song.title}\nNote Count: ${song.notes}`)
                     button1.disabled.setData(false);
                     button5.disabled.setData(false);
@@ -868,7 +873,7 @@ export async function openSongManagerUI(player: MusicPlayer, block?: MusicBox) {
     let slider2Prev = (songPlayer.volume ?? 0.5) * 100;
     let slider3Prev = songPlayer.songSpeed ?? 1;
     const slider1 = { value: new ObservableNumber(sliderPrev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(lastTick / 20) }
-    const slider2 = { value: new ObservableNumber(slider2Prev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(100) }
+    const slider2 = { value: new ObservableNumber(slider2Prev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(200) }
     const slider3 = { value: new ObservableNumber(slider3Prev, { clientWritable: true }), min: new ObservableNumber(0.25), max: new ObservableNumber(2), step: 0.25 }
     const toggle1 = { title: new ObservableString("Loop?"), toggled: new ObservableBoolean(songPlayer.loop ?? false, { clientWritable: true }), vis: new ObservableBoolean(true), disabled: new ObservableBoolean(false) }
     const buttonData: { title: ObservableString, cb: () => void, vis: ObservableBoolean, disabled: ObservableBoolean, spacerVis: ObservableBoolean, dividerVis: ObservableBoolean }[] = [];

@@ -5,17 +5,15 @@ import "./commands";
 import "./music_box";
 import "./ui";
 
-
-
 export const api = new HivemindAPI("SongPlayer", { logFailures: false, onConnect: () => initialConnect() });
-const SONG_PLAYER_VERSION = 0.2;
+const SONG_PLAYER_VERSION = 0.3;
 const INITIAL_MESSAGE = `§eThanks for installing §6Song Player v${SONG_PLAYER_VERSION}\n§pTo get started type §5/function connect\n§7Disable this msg in §d/song:settings`;
 
 system.run(() => {
     const dimensions = ["overworld", "nether", "the_end"];
     for (const dimension of dimensions) {
         for (const entity of world.getDimension(dimension).getEntities()) {
-            if (entity.typeId == "song:music_box_entity") entity.setProperty("song:is_playing", false);
+            if (entity && entity?.isValid && entity?.typeId == "song:music_box_entity") entity?.setProperty("song:is_playing", false);
         }
     }
 })
@@ -31,7 +29,6 @@ async function initialConnect() {
             world.sendMessage(`\n§cThis version of Song Player is outdated, Please update! §7(/song:settings to disable message)`);
         }
     }
-
 }
 
 world.afterEvents.playerSpawn.subscribe(() => {
