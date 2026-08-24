@@ -873,7 +873,7 @@ export async function openSongManagerUI(player: MusicPlayer, block?: MusicBox) {
     let slider2Prev = (songPlayer.volume ?? 0.5) * 100;
     let slider3Prev = songPlayer.songSpeed ?? 1;
     const slider1 = { value: new ObservableNumber(sliderPrev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(lastTick / 20) }
-    const slider2 = { value: new ObservableNumber(slider2Prev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(200) }
+    const slider2 = { value: new ObservableNumber(slider2Prev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(300) }
     const slider3 = { value: new ObservableNumber(slider3Prev, { clientWritable: true }), min: new ObservableNumber(0.25), max: new ObservableNumber(2), step: 0.25 }
     const toggle1 = { title: new ObservableString("Loop?"), toggled: new ObservableBoolean(songPlayer.loop ?? false, { clientWritable: true }), vis: new ObservableBoolean(true), disabled: new ObservableBoolean(false) }
     const buttonData: { title: ObservableString, cb: () => void, vis: ObservableBoolean, disabled: ObservableBoolean, spacerVis: ObservableBoolean, dividerVis: ObservableBoolean }[] = [];
