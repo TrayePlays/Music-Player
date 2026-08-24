@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Song Player BP V0.2",
+        "name": "Song Player BP v0.3",
         "description": "-by TrayePlays ty Cyanwalf for the textures",
         "min_engine_version": [
             1,
@@ -12,7 +12,7 @@
         "version": [
             1,
             0,
-            2
+            3
         ]
     },
     "metadata": {
