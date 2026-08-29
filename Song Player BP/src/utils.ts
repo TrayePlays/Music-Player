@@ -1,4 +1,8 @@
-import { system } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
+
+export function getSearchTimeout() {
+    return world.getDynamicProperty("requestTimeout") as number ?? 200
+}
 
 export function splitString(str: string, size = 32767): string[] {
     const chunks: string[] = [];

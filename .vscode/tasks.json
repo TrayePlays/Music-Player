@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Command on Launch",
+            "type": "shell",
+            "command": "cd 'Song Player BP'; tsc --watch",
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "presentation": {
+                "reveal": "never",
+                "panel": "shared"
+            },
+            "problemMatcher": "$tsc-watch"
+        }
+    ]
+}

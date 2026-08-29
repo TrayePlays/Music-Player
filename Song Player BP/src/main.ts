@@ -1,12 +1,13 @@
 import { world, system } from "@minecraft/server";
 import { HivemindAPI, ServerStatusResponse } from "api";
+import { getSearchTimeout } from "utils";
 
 import "./commands";
 import "./music_box";
 import "./ui";
 
 export const api = new HivemindAPI("SongPlayer", { logFailures: false, onConnect: () => initialConnect() });
-const SONG_PLAYER_VERSION = 0.3;
+const SONG_PLAYER_VERSION = 0.4;
 const INITIAL_MESSAGE = `§eThanks for installing §6Song Player v${SONG_PLAYER_VERSION}\n§pTo get started type §5/function connect\n§7Disable this msg in §d/song:settings`;
 
 system.run(() => {
@@ -21,7 +22,7 @@ system.run(() => {
 async function initialConnect() {
     const noUpdateMessage = world.getDynamicProperty("updateMessage") as boolean ?? false;
     if (noUpdateMessage == true) return;
-    const updateReq = await api.sendHttpRequest("https://raw.githubusercontent.com/TrayePlays/Music-Player/main/version.json")
+    const updateReq = await api.sendHttpRequest("https://raw.githubusercontent.com/TrayePlays/Music-Player/main/version.json", {}, undefined, getSearchTimeout());
 
     if (updateReq.status == ServerStatusResponse.Success) {
         const data = JSON.parse(updateReq.getData()) as { version: number };

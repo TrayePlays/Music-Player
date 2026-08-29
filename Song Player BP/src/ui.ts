@@ -4,7 +4,7 @@ import { ServerStatusResponse } from "api";
 import { api } from "main";
 import { loadMidi, _playMidi, MusicPlayer, MusicBox } from "music";
 import { startRhythmGame } from "rhythm";
-import { compressLZW, decodeHtml, formatBytes, sleep, splitBytes } from "utils";
+import { compressLZW, decodeHtml, formatBytes, getSearchTimeout, sleep, splitBytes } from "utils";
 
 interface SongItem {
     title: string;
@@ -12,7 +12,7 @@ interface SongItem {
     id: string;
 }
 
-const failedBrowserError = `§cFailed to send request! Run §e/function connect`
+const failedBrowserError = `§cFailed to send request! Run §e/function connect §7(if you are already connected make your timeout longer with /song:settings)`
 
 function parseSongs(htmlString: string): SongItem[] {
     const results: SongItem[] = [];
@@ -31,7 +31,7 @@ function parseSongs(htmlString: string): SongItem[] {
 }
 
 async function downloadSong(id: string, title?: string, onProgress?: (chunk: number, total: number) => void): Promise<string> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         let formatted = id;
         if (!id.startsWith("https://")) formatted = `https://onlinesequencer.net/${id}`
 
@@ -45,7 +45,7 @@ async function downloadSong(id: string, title?: string, onProgress?: (chunk: num
             title = titleMatch ? titleMatch[1] : "Unknown...";
         }
 
-        const songReq = await api.sendMidiRequest(formatted, undefined, 50, onProgress);
+        const songReq = await api.sendMidiRequest(formatted, undefined, getSearchTimeout(), onProgress);
 
         if (songReq.status != ServerStatusResponse.Success) resolve("Failed MIDI Request");
 
@@ -238,7 +238,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     player.onScreenDisplay.setActionBar(`Downloading ${song.title} §7(${percent}%)`)
                 });
                 if (ready != "Done!") {
-                    const testReq = await api.sendHttpRequest("https://dummyjson.com/quotes/1", {}, undefined, 50)
+                    const testReq = await api.sendPingRequest(getSearchTimeout());
                     if (testReq.status == ServerStatusResponse.Success) {
                         label1.title.setData(`§cFailed to download song.\n§7(invalid song)`)
                     } else {
@@ -253,7 +253,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 label1.title.setData(`Downloaded ${song.title}!`);
                 button1.title.setData(`Play`);
                 button1.disabled.setData(false);
-                button2.vis.setData(!isMusicBox);
+                button2.disabled.setData(!isMusicBox);
                 button3.vis.setData(true);
                 button4.vis.setData(true);
                 button5.disabled.setData(false);
@@ -275,8 +275,8 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
             }
         }
         const button2 = buttonData[1];
+        button2.vis.setData(downloaded);
         button2.title.setData("Rhythm Game");
-        button2.vis.setData(downloaded && !isMusicBox);
         button2.cb = () => {
             form.close();
             const openInterval = system.runInterval(() => {
@@ -315,7 +315,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
         if (alrSearching) return;
         // let localMax = (page * max) + max > songData.length ? songData.length % max : max;
         if (activeSongData[((p * max) + max) - 1] == undefined && downloaded == false) {
-            let percent = "0"
+            let percent = "Fetching"
             label1.title.setData(`Loading More Pages... §7(Fetching)`);
             textField1.disabled.setData(true);
             for (let i = 0; i < max + 3; i++) {
@@ -331,7 +331,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     "Accept": "application/json, text/plain, */*",
                     "Accept-Language": "en-US,en;q=0.9",
                 }
-            }, undefined, 50, (c, total) => {
+            }, undefined, getSearchTimeout(), (c, total) => {
                 percent = ((c / total) * 100).toFixed(0)
                 label1.title.setData(`Loading More Pages... §7(${percent}%)`)
             });
@@ -365,7 +365,6 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
             p = maxPage - 1
             page = maxPage - 1
         }
-
 
         label1.title.setData(`Page ${page + 1}/${Math.ceil(activeSongData.length / max)} (Total Loaded: ${Math.ceil(songData.length / max)})`);
 
@@ -503,7 +502,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 const sortNumbers = [1, 2, 4];
                 paramSearch = `&search=${encodeURIComponent(text)}&sort=${sortNumbers[dropdownValue]}`;
                 allButtonSet({ vis: false });
-                let percent = "0"
+                let percent = "Fetching"
                 label1.title.setData(`§7Searching for ${text} (Fetching)`)
                 const formInterval = system.runInterval(() => {
                     if (!form.isShowing()) system.clearRun(formInterval);
@@ -517,7 +516,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     const title = label1.title.getData();
                     const searchingText = title.split(" (")[0];
                     const before = searchingText.includes(".") ? searchingText.split(".")[0] : searchingText;
-                    label1.title.setData(before + ".".repeat(dots) + ` (${percent}%)`)
+                    label1.title.setData(before + ".".repeat(dots) + ` (${percent})`)
                 }, 10)
                 const browseReq = await api.sendHttpRequest(`https://onlinesequencer.net/sequences?${paramSearch}`, {
                     method: "GET",
@@ -526,12 +525,12 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                         "Accept": "application/json, text/plain, */*",
                         "Accept-Language": "en-US,en;q=0.9",
                     }
-                }, undefined, 50, (c, total) => {
-                    percent = ((c / total) * 100).toFixed(0)
+                }, undefined, getSearchTimeout(), (c, total) => {
+                    percent = ((c / total) * 100).toFixed(0) + "%"
                     const title = label1.title.getData();
                     const searchingText = title.split(" (")[0];
                     const before = searchingText.includes(".") ? searchingText.split(".")[0] : searchingText;
-                    label1.title.setData(before + ".".repeat(dots) + ` (${percent}%)`)
+                    label1.title.setData(before + ".".repeat(dots) + ` (${percent})`)
                 })
 
                 if (browseReq.status != ServerStatusResponse.Success) {
@@ -546,7 +545,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 system.clearRun(formInterval);
                 if (songData.length == 0) {
                     textField1.text.setData("");
-                    searchForm(`No songs found for ${text}`);
+                    searchForm(`§cNo songs found for ${text}`);
                     return;
                 }
                 label1.spacer2.setData(true);
@@ -559,7 +558,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 resetForm();
             } else {
                 allButtonSet({ vis: false });
-                let percent = "0";
+                let percent = "Fetching";
                 label1.title.setData(`§7Searching for ID: ${text} (Fetching)`)
                 const formInterval = system.runInterval(() => {
                     if (!form.isShowing()) system.clearRun(formInterval);
@@ -573,7 +572,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     const title = label1.title.getData();
                     const searchingText = title.split(" (")[0];
                     const before = searchingText.includes(".") ? searchingText.split(".")[0] : searchingText;
-                    label1.title.setData(before + ".".repeat(dots) + ` (${percent}%)`)
+                    label1.title.setData(before + ".".repeat(dots) + ` (${percent})`)
                 }, 10)
                 let formatted = text;
                 if (!text.startsWith("https://")) formatted = `https://onlinesequencer.net/${text}`
@@ -584,12 +583,12 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                         "Accept": "application/json, text/plain, */*",
                         "Accept-Language": "en-US,en;q=0.9",
                     }
-                }, undefined, 50, (c, total) => {
-                    percent = ((c / total) * 100).toFixed(0)
+                }, undefined, getSearchTimeout(), (c, total) => {
+                    percent = ((c / total) * 100).toFixed(0) + "%"
                     const title = label1.title.getData();
                     const searchingText = title.split(" (")[0];
                     const before = searchingText.includes(".") ? searchingText.split(".")[0] : searchingText;
-                    label1.title.setData(before + ".".repeat(dots) + ` (${percent}%)`)
+                    label1.title.setData(before + ".".repeat(dots) + ` (${percent})`)
                 })
 
                 if (browseReq.status != ServerStatusResponse.Success) {
@@ -649,7 +648,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
             label1.spacer2.setData(false)
             allButtonSet({ vis: false });
             paramSearch = "&sort=1"
-            let progress = "0";
+            let progress = "Fetching";
             label1.title.setData(`Loading §7(Fetching)`)
             const formInterval = system.runInterval(() => {
                 const title = label1.title.getData()
@@ -663,7 +662,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 }
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             }, 10)
             const browseReq = await api.sendHttpRequest(`https://onlinesequencer.net/sequences?${paramSearch}`, {
                 method: "GET",
@@ -672,12 +671,12 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     "Accept": "application/json, text/plain, */*",
                     "Accept-Language": "en-US,en;q=0.9",
                 }
-            }, undefined, 50, (c, total) => {
-                progress = ((c / total) * 100).toFixed(0)
+            }, undefined, getSearchTimeout(), (c, total) => {
+                progress = ((c / total) * 100).toFixed(0) + "%"
                 const title = label1.title.getData()
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             })
 
             if (browseReq.status != ServerStatusResponse.Success) {
@@ -706,7 +705,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
             label1.spacer2.setData(false)
             allButtonSet({ vis: false });
             paramSearch = "&sort=2"
-            let progress = "0";
+            let progress = "Fetching";
             label1.title.setData(`Loading §7(Fetching)`)
             const formInterval = system.runInterval(() => {
                 const title = label1.title.getData()
@@ -720,7 +719,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 }
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             }, 10)
             const browseReq = await api.sendHttpRequest(`https://onlinesequencer.net/sequences?${paramSearch}`, {
                 method: "GET",
@@ -729,12 +728,12 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     "Accept": "application/json, text/plain, */*",
                     "Accept-Language": "en-US,en;q=0.9",
                 }
-            }, undefined, 50, (c, total) => {
-                progress = ((c / total) * 100).toFixed(0)
+            }, undefined, getSearchTimeout(), (c, total) => {
+                progress = ((c / total) * 100).toFixed(0) + "%"
                 const title = label1.title.getData()
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             })
 
             if (browseReq.status != ServerStatusResponse.Success) {
@@ -763,7 +762,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
             label1.spacer2.setData(false)
             allButtonSet({ vis: false });
             paramSearch = "&sort=4"
-            let progress = "0";
+            let progress = "Fetching";
             label1.title.setData(`Loading §7(Fetching)`)
             const formInterval = system.runInterval(() => {
                 const title = label1.title.getData()
@@ -777,7 +776,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 }
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             }, 10)
             const browseReq = await api.sendHttpRequest(`https://onlinesequencer.net/sequences?${paramSearch}`, {
                 method: "GET",
@@ -786,12 +785,12 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                     "Accept": "application/json, text/plain, */*",
                     "Accept-Language": "en-US,en;q=0.9",
                 }
-            }, undefined, 50, (c, total) => {
-                progress = ((c / total) * 100).toFixed(0)
+            }, undefined, getSearchTimeout(), (c, total) => {
+                progress = ((c / total) * 100).toFixed(0) + "%"
                 const title = label1.title.getData()
                 const loadingText = title.split(" §")[0];
                 const before = loadingText.includes(".") ? loadingText.split(".")[0] : loadingText;
-                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress}%)`)
+                label1.title.setData(before + ".".repeat(dots) + ` §7(${progress})`)
             })
 
             if (browseReq.status != ServerStatusResponse.Success) {
@@ -997,7 +996,8 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     form.toggle("Only owners and creative can break music boxes?", { defaultValue: world.getDynamicProperty("breakMusicBoxRestricted") as boolean ?? false });
     form.toggle("Members allowed to use /song:browse", { defaultValue: world.getDynamicProperty("memberBrowse") as boolean ?? true });
     form.toggle("Members allowed to use /song:manage", { defaultValue: world.getDynamicProperty("memberManage") as boolean ?? true });
-    form.toggle("Remove Update Message", { defaultValue: world.getDynamicProperty("updateMessage") as boolean ?? false })
+    form.toggle("Remove Update Message", { defaultValue: world.getDynamicProperty("updateMessage") as boolean ?? false });
+    form.slider("Request Timeout", 3, 45, { defaultValue: (world.getDynamicProperty("requestTimeout") as number ?? 200) / 20, tooltip: "The time before a request times out. §7(If you have issues with requests, set the delay higher)" });
     form.submitButton("Save");
     const { canceled, formValues } = await form.show(player)
     if (canceled || formValues == undefined) return;
@@ -1007,6 +1007,7 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     world.setDynamicProperty("memberBrowse", formValues[2]);
     world.setDynamicProperty("memberManage", formValues[3]);
     world.setDynamicProperty("updateMessage", formValues[4]);
+    world.setDynamicProperty("requestTimeout", (formValues[5] as number) * 20);
 }
 
 world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
@@ -1020,5 +1021,20 @@ world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
             return;
         }
         openSongManagerUI(player);
+    }
+    if (itemStack.typeId == "minecraft:torch") {
+        const now = Date.now();
+        console.warn("Ping sent");
+        const ping = await api.sendPingRequest(getSearchTimeout());
+        const pingTime = Date.now() - now;
+        console.warn("Successful ping: " + pingTime);
+    }
+    if (itemStack.typeId == "minecraft:diamond") {
+        const now = Date.now();
+        console.warn("Word get request sent")
+        const wordReq = await api.sendHttpRequest("https://raw.githubusercontent.com/DO-Ui/BombpartyBot/refs/heads/main/pre-built/BombpartyBot-windows/wordlist.txt", {}, undefined, getSearchTimeout(), (c, total) => {
+            player.onScreenDisplay.setActionBar(`Progress: ${((c / total) * 100).toFixed(1)}% (${c}/${total})`);
+        })
+        console.warn(`Success: ${Date.now() - now}ms | ${wordReq.data.length}`);
     }
 })

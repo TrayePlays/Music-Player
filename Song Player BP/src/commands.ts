@@ -1,4 +1,4 @@
-import { CommandPermissionLevel, CustomCommandOrigin, CustomCommandParamType, CustomCommandResult, CustomCommandStatus, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
+import { CommandPermissionLevel, CustomCommandOrigin, CustomCommandResult, CustomCommandStatus, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
 import { openSongBrowserUI, openSongManagerUI, openSongSettingsUI } from "ui";
 
 system.beforeEvents.startup.subscribe(({ customCommandRegistry }) => {
@@ -26,7 +26,7 @@ function songBrowseCMD(origin: CustomCommandOrigin): CustomCommandResult {
         if (player.playerPermissionLevel == PlayerPermissionLevel.Operator || (world.getDynamicProperty("memberBrowse") as boolean ?? true) == true) {
             openSongBrowserUI(player);
         } else {
-            player.sendMessage(`§cThe host of this world has disabled §6/song:browse§c for members`)
+            player.sendMessage(`§cThe host of this world has disabled §6/song:browse§c for members`);
         }
     })
     return { status: CustomCommandStatus.Success };
@@ -39,7 +39,7 @@ function songManageCMD(origin: CustomCommandOrigin): CustomCommandResult {
         if (player.playerPermissionLevel == PlayerPermissionLevel.Operator || (world.getDynamicProperty("memberManage") as boolean ?? true) == true) {
             openSongManagerUI(player);
         } else {
-            player.sendMessage(`§cThe host of this world has disabled §6/song:manage§c for members`)
+            player.sendMessage(`§cThe host of this world has disabled §6/song:manage§c for members`);
         }
     })
     return { status: CustomCommandStatus.Success }
