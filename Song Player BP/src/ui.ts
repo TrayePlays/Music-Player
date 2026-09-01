@@ -53,7 +53,7 @@ async function downloadSong(id: string, title?: string, onProgress?: (chunk: num
         const chunks = splitBytes(lzw);
 
         chunks.forEach((chunk, i) => {
-            world.setDynamicProperty(`song|${title}|${i}`, `${chunk}`)
+            world.setDynamicProperty(`song|${title}|${i}`, chunk)
         })
         world.setDynamicProperty(`song|${title}|meta`, chunks.length);
         resolve("Done!");
@@ -253,7 +253,7 @@ export async function openSongBrowserUI(player: MusicPlayer, block?: MusicBox) {
                 label1.title.setData(`Downloaded ${song.title}!`);
                 button1.title.setData(`Play`);
                 button1.disabled.setData(false);
-                button2.disabled.setData(!isMusicBox);
+                button2.vis.setData(true);
                 button3.vis.setData(true);
                 button4.vis.setData(true);
                 button5.disabled.setData(false);

@@ -348,7 +348,7 @@ function _playRhythmGameMidi(player: MusicPlayer, events: MidiEvents, songTick?:
             const rgb = { red: Math.sin(midi / 64), green: (midi / 127), blue: 1 }
             if (player.isPaused != true && added == false) {
                 const keyArr = Object.values(InputKeys);
-                const keyIndex = Math.floor(midi % 4 * keyArr.length)
+                const keyIndex = midi % 4
                 const key = keyArr[keyIndex]
                 player.addNote!(key, player.songTick!)
                 added = true;
