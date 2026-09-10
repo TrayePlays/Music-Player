@@ -1022,19 +1022,4 @@ world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
         }
         openSongManagerUI(player);
     }
-    if (itemStack.typeId == "minecraft:torch") {
-        const now = Date.now();
-        console.warn("Ping sent");
-        const ping = await api.sendPingRequest(getSearchTimeout());
-        const pingTime = Date.now() - now;
-        console.warn("Successful ping: " + pingTime);
-    }
-    if (itemStack.typeId == "minecraft:diamond") {
-        const now = Date.now();
-        console.warn("Word get request sent")
-        const wordReq = await api.sendHttpRequest("https://raw.githubusercontent.com/DO-Ui/BombpartyBot/refs/heads/main/pre-built/BombpartyBot-windows/wordlist.txt", {}, undefined, getSearchTimeout(), (c, total) => {
-            player.onScreenDisplay.setActionBar(`Progress: ${((c / total) * 100).toFixed(1)}% (${c}/${total})`);
-        })
-        console.warn(`Success: ${Date.now() - now}ms | ${wordReq.data.length}`);
-    }
 })
