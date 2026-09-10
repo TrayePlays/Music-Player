@@ -7,7 +7,7 @@ import "./music_box";
 import "./ui";
 
 export const api = new HivemindAPI("SongPlayer", { logFailures: false, onConnect: () => initialConnect() });
-const SONG_PLAYER_VERSION = 0.4;
+const SONG_PLAYER_VERSION = 0.5;
 const INITIAL_MESSAGE = `§eThanks for installing §6Song Player v${SONG_PLAYER_VERSION}\n§pTo get started type §5/function connect\n§7Disable this msg in §d/song:settings`;
 
 system.run(() => {
