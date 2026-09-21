@@ -59,7 +59,7 @@ system.runInterval(() => {
                 entity?.dimension.playSound("dig.wood", entity.location)
                 entity?.remove();
             }
-            if (entity.dimension.getBlock(entity.location)?.typeId != "minecraft:air") {
+            if (entity && entity?.isValid && entity?.dimension?.getBlock(entity.location)?.typeId != "minecraft:air") {
                 try {
                     entity.dimension.spawnItem(new ItemStack("song:music_box"), entity.location);
                 } catch { };

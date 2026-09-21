@@ -1,6 +1,265 @@
 {
-    "format_version" : "1.20.20",
+    "format_version": "1.26.50",
     "sound_definitions": {
-        
+        "ui.banjo": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/banjo"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.bass": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/bass"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.bd": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/bd"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.bell": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/bell"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.bit": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/bit"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.chime": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/icechime"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.cow_bell": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/cow_bell"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.didgeridoo": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/didgeridoo"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.flute": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/flute"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.guitar": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/guitar"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.harp": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/harp"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.hat": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/hat"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.iron_xylophone": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/iron_xylophone"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.pling": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/pling"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.snare": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/snare"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.trumpet": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/trumpet"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.trumpet_exposed": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/trumpet_exposed"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.trumpet_oxidized": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/trumpet_oxidized"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.trumpet_weathered": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/trumpet_weathered"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        },
+        "ui.xylophone": {
+            "__use_legacy_max_distance": "true",
+            "max_distance": null,
+            "min_distance": null,
+            "category": "record",
+            "sounds": [
+                {
+                    "is3D": false,
+                    "name": "sounds/note/xylobone"
+                }
+            ],
+            "subtitle": "subtitles.block.note_block.note"
+        }
     }
 }

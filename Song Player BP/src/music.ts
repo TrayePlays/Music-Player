@@ -18,9 +18,10 @@ export class MusicBox extends Entity {
 }
 
 export class MusicPlayer extends Player {
-    rhythmGameHeight?: number
-    rhythmGameLatestHit?: string
-    rhythmGameStats?: { perfect: number, good: number, miss: number, notes: number, offbeat: number };
+    rhythmGameStreak?: number;
+    rhythmGameHeight?: number;
+    rhythmGameLatestHit?: string;
+    rhythmGameStats?: { perfect: number, good: number, realMiss: number, miss: number, notes: number, offbeat: number };
     rhythmGameColor?: { w: string, a: string, s: string, d: string }
     addNote?: (key: InputKeys, tick: number) => void;
     removeNote?: (tick: number, key?: InputKeys) => void
@@ -106,7 +107,7 @@ export function _playMidi(player: MusicPlayer | MusicBox, events: MidiEvents, so
         if (!player || !player.isValid) {
             system.clearRun(interval);
         }
-        const speed = player.songSpeed ?? 1
+        const speed = isMusicBox ? player.getDynamicProperty("songSpeed") as number ?? 1 : player.songSpeed ?? 1
         const nextTickBoundary = player.songTick! + speed;
         if (!isMusicBox) {
             while (pos < idx.length && ticks[idx[pos]] >= player.songTick! && ticks[idx[pos]] < nextTickBoundary) {
@@ -133,6 +134,7 @@ export function _playMidi(player: MusicPlayer | MusicBox, events: MidiEvents, so
         let once = false;
         let pastPos = findPosForTick(player.songTick! - 20)
         while (pastPos < idx.length && ticks[idx[pastPos]] >= player.songTick! - 20 && ticks[idx[pastPos]] < nextTickBoundary - 20) {
+            const volume = isMusicBox ? (player.getDynamicProperty("songVolume") as number ?? player.volume) : player.volume ?? 0.5;
             const i = idx[pastPos];
             const midi = midis[i];
             const inst = instruments[i];
@@ -142,7 +144,9 @@ export function _playMidi(player: MusicPlayer | MusicBox, events: MidiEvents, so
 
             const sound = mapInstrument(inst);
             if (player.isPaused != true) {
-                player.dimension.playSound(sound, player.location, { pitch, volume: Math.pow(velo / 127, 2) * ((player.volume ?? 0.5)) });
+                for (const p of player.dimension.getEntities({ maxDistance: 20, location: player.location, type: "minecraft:player" })) {
+                    (p as Player).playSound(sound, { pitch, volume: Math.pow(velo / 127, 2) * (volume) });
+                }
                 try {
                     const molang = new MolangVariableMap();
                     molang.setFloat("variable.size", 0.115)
@@ -169,6 +173,8 @@ export function _playMidi(player: MusicPlayer | MusicBox, events: MidiEvents, so
             const percent = (player.songTick! - 20) / lastTick;
             const bar = buildBar(percent);
             for (const p of player.dimension.getEntities({ maxDistance: 5, location: player.location, type: "minecraft:player" })) {
+                if (isMusicBox && (world.getDynamicProperty("removeNearBox") as boolean ?? false)) return;
+                if (!isMusicBox && (world.getDynamicProperty("removeNearPlayer") as boolean ?? false)) return;
                 (p as Player).onScreenDisplay.setActionBar(`§7Playing: §f${songName}\n§8[§c${bar}§8] §8§l| §r§7${formatTime(Math.max(Math.round(player.songTick! / 20) - 1, 0))} / ${formatTime(Math.round(lastTick / 20))}`);
             }
         }
@@ -236,7 +242,7 @@ export function loadMidi(player: MusicPlayer | MusicBox, song: string): MidiEven
         const dp = `song|${song}|${i}`
         str += world.getDynamicProperty(dp)
     }
-    
+
     try {
         player.currentSongName = song;
 
@@ -332,7 +338,7 @@ export function pitchToFloat(semitones: number): number {
 }
 
 export function mapInstrument(i: number) {
-    return instrumentMap[i] || instrumentMap.default;
+    return uiInstrumentMap[i] || uiInstrumentMap.default;
 }
 
 const customInstrumentMap: Record<number | string, string> = {
@@ -377,6 +383,64 @@ const customInstrumentMap: Record<number | string, string> = {
     130: "note.hat",
 
     default: "midi.flute"
+};
+
+export const uiInstrumentMap: Record<number | string, string> = {
+    0: "ui.harp", 1: "ui.harp", 2: "ui.harp", 3: "ui.harp",
+    4: "ui.pling", 5: "ui.pling", 6: "ui.pling", 7: "ui.pling",
+
+    8: "ui.xylophone", 9: "ui.xylophone",
+    10: "ui.iron_xylophone", 11: "ui.iron_xylophone",
+    12: "ui.iron_xylophone", 13: "ui.xylophone",
+    14: "ui.bell", 15: "ui.chime",
+
+    16: "ui.didgeridoo", 17: "ui.didgeridoo", 18: "ui.flute", 19: "ui.flute",
+    20: "ui.flute", 21: "ui.flute", 22: "ui.flute", 23: "ui.flute",
+
+    24: "ui.guitar", 25: "ui.guitar", 26: "ui.guitar", 27: "ui.guitar",
+    28: "ui.guitar", 29: "ui.guitar", 30: "ui.guitar", 31: "ui.guitar",
+
+    32: "ui.bass", 33: "ui.bass", 34: "ui.bass",
+    35: "ui.bd", 36: "ui.bd", 37: "ui.hat", 38: "ui.snare", 39: "ui.snare",
+
+    40: "ui.pling", 41: "ui.pling", 42: "ui.pling", 43: "ui.pling",
+    44: "ui.pling", 45: "ui.pling", 46: "ui.harp", 47: "ui.bd",
+
+    48: "ui.flute", 49: "ui.flute", 50: "ui.flute", 51: "ui.flute",
+    52: "ui.harp", 53: "ui.harp", 54: "ui.didgeridoo", 55: "ui.didgeridoo",
+
+    56: "ui.trumpet", 57: "ui.trumpet_exposed", 58: "ui.trumpet_weathered", 59: "ui.trumpet_oxidized",
+    60: "ui.trumpet_exposed", 61: "ui.trumpet_weathered", 62: "ui.trumpet_oxidized", 63: "ui.trumpet",
+
+    64: "ui.flute", 65: "ui.flute", 66: "ui.flute", 67: "ui.flute",
+    68: "ui.flute", 69: "ui.flute", 70: "ui.flute", 71: "ui.flute",
+
+    72: "ui.flute", 73: "ui.flute", 74: "ui.flute", 75: "ui.flute",
+    76: "ui.flute", 77: "ui.flute", 78: "ui.chime", 79: "ui.chime",
+
+    80: "ui.bit", 81: "ui.bit", 82: "ui.bit", 83: "ui.bit",
+    84: "ui.bit", 85: "ui.bit", 86: "ui.bit", 87: "ui.bit",
+
+    88: "ui.chime", 89: "ui.chime", 90: "ui.bit", 91: "ui.bit",
+    92: "ui.bit", 93: "ui.bit", 94: "ui.bit", 95: "ui.bit",
+
+    96: "ui.bit", 97: "ui.bit", 98: "ui.bit", 99: "ui.bit",
+    100: "ui.bit", 101: "ui.bit", 102: "ui.cow_bell", 103: "ui.bit",
+
+    104: "ui.banjo", 105: "ui.banjo", 106: "ui.guitar", 107: "ui.guitar",
+    108: "ui.guitar", 109: "ui.didgeridoo", 110: "ui.flute", 111: "ui.flute",
+
+    112: "ui.bell", 113: "ui.cow_bell", 114: "ui.cow_bell", 115: "ui.bd",
+    116: "ui.bd", 117: "ui.bd", 118: "ui.bd", 119: "ui.bd",
+
+    120: "ui.snare", 121: "ui.hat", 122: "ui.bit", 123: "ui.bit",
+    124: "ui.bit", 125: "ui.bit", 126: "ui.bit", 127: "ui.bit",
+
+    128: "ui.bd",
+    129: "ui.snare",
+    130: "ui.hat",
+
+    default: "ui.flute"
 };
 
 export const instrumentMap: Record<number | string, string> = {

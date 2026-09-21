@@ -32,8 +32,8 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
     const dropdown1 = { title: new ObservableString("UI Scale"), value: new ObservableNumber(rhythmGameHeightIndex, { clientWritable: true }), items: [{ label: "60%", value: 0 }, { label: "80%", value: 1 }, { label: "100%", value: 2 }, { label: "Extra Large UI", value: 3 }] as DropdownItemData[], disabled: new ObservableBoolean(false), vis: new ObservableBoolean(false), description: new ObservableString("") }
     const textField1 = { title: new ObservableString("Type to start"), text: new ObservableString("", { clientWritable: true }), vis: new ObservableBoolean(false), disabled: new ObservableBoolean(false), description: new ObservableString("") }
     if (player.rhythmGameColor == undefined) player.rhythmGameColor = { w: "", a: "", s: "", d: "" };
-
-    player.rhythmGameStats = { perfect: 0, good: 0, miss: 0, notes: 0, offbeat: 0 };
+    player.rhythmGameStreak = 0;
+    player.rhythmGameStats = { perfect: 0, good: 0, miss: 0, notes: 0, offbeat: 0, realMiss: 0 };
     player.rhythmGameLatestHit = ""
     form.spacer({ visible: label1.spacerVis });
     form.label(label1.title, { visible: label1.vis });
@@ -56,7 +56,7 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
 
     form.divider({ visible: label1.dividerVis });
     form.textField(textField1.title, textField1.text, { visible: textField1.vis, disabled: textField1.disabled, description: textField1.description });
-    form.dropdown(dropdown1.title, dropdown1.value, dropdown1.items, {visible: dropdown1.vis, disabled: dropdown1.disabled, description: dropdown1.description});
+    form.dropdown(dropdown1.title, dropdown1.value, dropdown1.items, { visible: dropdown1.vis, disabled: dropdown1.disabled, description: dropdown1.description });
 
     function initialForm() {
         player.rhythmGameLatestHit = ""
@@ -148,18 +148,21 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
                 player.rhythmGameColor![note.key] = `§a`;
                 player.rhythmGameLatestHit = " ".repeat(38).replaceAll(" ", spacerKey) + `§aPerfect!`
                 player.rhythmGameStats!.perfect++;
+                player.rhythmGameStreak!++;
             } else if (clickTime > 0 && clickTime < 3) {
                 // Good
                 molang.setColorRGB("variable.note_color", { red: 0, green: 0.4, blue: 1 })
                 player.rhythmGameColor![note.key] = `§9`;
                 player.rhythmGameLatestHit = " ".repeat(43).replaceAll(" ", spacerKey) + `§9Good`
                 player.rhythmGameStats!.good++;
+                player.rhythmGameStreak!++;
             } else {
                 // Offbeat
                 molang.setColorRGB("variable.note_color", { red: 1, green: 0.4, blue: 0.4 })
                 player.rhythmGameColor![note.key] = `§c`;
                 player.rhythmGameLatestHit = " ".repeat(39).replaceAll(" ", spacerKey) + `§cOffbeat`
                 player.rhythmGameStats!.offbeat++;
+                player.rhythmGameStreak!++;
             }
 
             player.rhythmGameStats!.notes++;
@@ -173,6 +176,8 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
             player.rhythmGameColor![key as InputKeys] = `§4`;
             player.rhythmGameLatestHit = " ".repeat(44).replaceAll(" ", spacerKey) + `§4Miss`
             player.rhythmGameStats!.miss++;
+            player.rhythmGameStats!.realMiss++;
+            player.rhythmGameStreak = 0;
             player.startItemCooldown(`colorKey${key.toUpperCase()}`, 2);
         }
         player.dimension.spawnParticle("song:note_particle", notePos, molang);
@@ -201,6 +206,7 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
         function renderLabel() {
             if (player.rhythmGameColor == undefined) player.rhythmGameColor = { w: "§f", a: "§f", s: "§f", d: "§f" };
             if (player.currentNotes == undefined) player.currentNotes = [];
+            if (player.rhythmGameStreak == undefined) player.rhythmGameStreak = 0;
             let newLabel = ``
             for (let i = 0; i < rhythmGameHeight; i++) {
                 const notes = player.currentNotes?.filter(n => n.tick == player.songTick! - i);
@@ -213,8 +219,8 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
             }
 
             newLabel += `${" ".repeat(34)}${player.rhythmGameColor[InputKeys.w]}${wKey}      ${player.rhythmGameColor[InputKeys.a]}${aKey}      ${player.rhythmGameColor[InputKeys.s]}${sKey}      ${player.rhythmGameColor[InputKeys.d]}${dKey}\n`.replaceAll(" ", spacerKey)
-            newLabel += `\n${player.rhythmGameLatestHit ?? ""}\n\n§f------------ ${formatTime(Math.round(Math.max(player.songTick! - rhythmGameHeight, 0) / 20))} / ${formatTime(Math.round(lastTick / 20))} ------------\n`
-            label1.title.setData(newLabel)
+            newLabel += `\n${player.rhythmGameLatestHit ?? ""}\n${" ".repeat(50 - (player.rhythmGameStreak.toString().length * 2)).replaceAll(" ", spacerKey)}§7${(player.rhythmGameStreak ?? 0) > 10 ? (player.rhythmGameStreak! * 1) : ""}\n§f------------ ${formatTime(Math.round(Math.max(player.songTick! - rhythmGameHeight, 0) / 20))} / ${formatTime(Math.round(lastTick / 20))} ------------\n`
+            label1.title.setData(newLabel) 
         }
 
         function finishGame() {
@@ -222,9 +228,9 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
             label1.dividerVis.setData(false);
             const stats = player.rhythmGameStats!;
             const maxScore = (stats.notes * 5);
-            const finalScore = (stats.perfect * 5) + (stats.good * 4) + (stats.offbeat) - (stats.miss);
+            const finalScore = Math.max((stats.perfect * 5) + (stats.good * 3) + (stats.offbeat) - stats.miss, 0);
             const totalHit = stats.perfect + stats.good;
-            const totalNotHit = stats.notes + stats.miss;
+            const totalNotHit = stats.notes + stats.realMiss;
             const button1 = buttonData[0];
             button1.title.setData("Play Again");
             button1.vis.setData(true);
@@ -263,6 +269,7 @@ export function startRhythmGame(player: MusicPlayer, song: string) {
                         player.rhythmGameColor[note.key] = `§4`;
                         player.rhythmGameLatestHit = " ".repeat(44).replaceAll(" ", spacerKey) + `§4Miss`
                         player.rhythmGameStats!.miss++;
+                        player.rhythmGameStreak = 0;
                     }
                     player.currentNotes = player.currentNotes?.filter(n => n != note);
                     player.rhythmGameStats!.notes++
@@ -290,7 +297,7 @@ function _playRhythmGameMidi(player: MusicPlayer, events: MidiEvents, songTick?:
 
     if (idx.length === 0) return;
     const rhythmGameHeight = player.getDynamicProperty("rhythmGameHeight") as number ?? 22;
-    player.rhythmGameStats = { perfect: 0, good: 0, miss: 0, notes: 0, offbeat: 0 };
+    player.rhythmGameStats = { perfect: 0, good: 0, miss: 0, notes: 0, offbeat: 0, realMiss: 0 };
     player.currentSongEvents = events;
     player.songTick = 0;
 
@@ -342,16 +349,43 @@ function _playRhythmGameMidi(player: MusicPlayer, events: MidiEvents, songTick?:
         const speed = player.songSpeed ?? 1
         const nextTickBoundary = player.songTick! + speed;
         let added = false
+
+        let lookAheadPos = pos;
+        const instrumentsInThisWindow = [];
+
+        while (lookAheadPos < idx.length && ticks[idx[lookAheadPos]] >= player.songTick! && ticks[idx[lookAheadPos]] < nextTickBoundary) {
+            instrumentsInThisWindow.push(instruments[idx[lookAheadPos]]);
+            lookAheadPos++;
+        }
+
+        const isOnlyDrums = instrumentsInThisWindow.every(inst => mapInstrument(inst).includes(".bd")) && instrumentsInThisWindow.length > 0;
+
         while (pos < idx.length && ticks[idx[pos]] >= player.songTick! && ticks[idx[pos]] < nextTickBoundary) {
             const i = idx[pos];
+            const inst = instruments[i];
             const midi = midis[i];
-            const rgb = { red: Math.sin(midi / 64), green: (midi / 127), blue: 1 }
-            if (player.isPaused != true && added == false) {
-                const keyArr = Object.values(InputKeys);
-                const keyIndex = midi % 4
-                const key = keyArr[keyIndex]
-                player.addNote!(key, player.songTick!)
-                added = true;
+            if (isOnlyDrums) {
+                if (player.isPaused != true && added == false) {
+                    const keyArr = Object.values(InputKeys);
+                    const keyIndex = midi % 4;
+                    const key = keyArr[keyIndex];
+                    player.addNote!(key, player.songTick!);
+                    added = true;
+                }
+            } else {
+                if (mapInstrument(inst).includes(".bd")) {
+                    pos++;
+                    // console.warn("skipped drum?")
+                    continue;
+                }
+                const midi = midis[i];
+                if (player.isPaused != true && added == false) {
+                    const keyArr = Object.values(InputKeys);
+                    const keyIndex = midi % 4;
+                    const key = keyArr[keyIndex];
+                    player.addNote!(key, player.songTick!);
+                    added = true;
+                }
             }
             pos++;
         }

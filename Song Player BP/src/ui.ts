@@ -869,12 +869,12 @@ export async function openSongManagerUI(player: MusicPlayer, block?: MusicBox) {
     const lastTick = ticks[idx[idx.length - 1]]
     const second = Math.floor(songPlayer.songTick! / 20)
     let sliderPrev = second
-    let slider2Prev = (songPlayer.volume ?? 0.5) * 100;
-    let slider3Prev = songPlayer.songSpeed ?? 1;
+    let slider2Prev = block ? (block.getDynamicProperty("songVolume") as number ?? 0.5) * 100 : (songPlayer.volume ?? 0.5) * 100;
+    let slider3Prev = block ? (block.getDynamicProperty("songSpeed") as number ?? 1) : songPlayer.songSpeed ?? 1;
     const slider1 = { value: new ObservableNumber(sliderPrev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(lastTick / 20) }
     const slider2 = { value: new ObservableNumber(slider2Prev, { clientWritable: true }), min: new ObservableNumber(0), max: new ObservableNumber(300) }
     const slider3 = { value: new ObservableNumber(slider3Prev, { clientWritable: true }), min: new ObservableNumber(0.25), max: new ObservableNumber(2), step: 0.25 }
-    const toggle1 = { title: new ObservableString("Loop?"), toggled: new ObservableBoolean(songPlayer.loop ?? false, { clientWritable: true }), vis: new ObservableBoolean(true), disabled: new ObservableBoolean(false) }
+    const toggle1 = { title: new ObservableString("Loop?"), toggled: new ObservableBoolean(block ? block.getDynamicProperty("songLoop") as boolean ?? false : songPlayer.loop ?? false, { clientWritable: true }), vis: new ObservableBoolean(true), disabled: new ObservableBoolean(false) }
     const buttonData: { title: ObservableString, cb: () => void, vis: ObservableBoolean, disabled: ObservableBoolean, spacerVis: ObservableBoolean, dividerVis: ObservableBoolean }[] = [];
     const formInterval = system.runInterval(() => {
         if (!form.isShowing()) {
@@ -903,10 +903,16 @@ export async function openSongManagerUI(player: MusicPlayer, block?: MusicBox) {
     })
 
     slider2.value.subscribe((val) => {
+        if (block) {
+            block.setDynamicProperty("songVolume", (val / 100))
+        }
         songPlayer.volume = (val / 100);
     })
 
     slider3.value.subscribe((val) => {
+        if (block) {
+            block.setDynamicProperty("songSpeed", val)
+        }
         songPlayer.songSpeed = val;
     })
 
@@ -915,11 +921,14 @@ export async function openSongManagerUI(player: MusicPlayer, block?: MusicBox) {
     form.spacer();
     form.slider("Timeline", slider1.value, slider1.min, slider1.max);
     form.slider("Volume", slider2.value, slider2.min, slider2.max);
-    form.slider("Speed", slider3.value, slider3.min, slider3.max, { step: slider3.step });
+    form.slider("Speed", slider3.value, slider3.min, slider3.max, { step: 0.25 });
     form.toggle(toggle1.title, toggle1.toggled, { disabled: toggle1.disabled, visible: toggle1.vis });
 
-    toggle1.toggled.subscribe((value) => {
-        songPlayer.loop = value;
+    toggle1.toggled.subscribe((val) => {
+        if (block) {
+            block.setDynamicProperty("songLoop", val)
+        }
+        songPlayer.loop = val;
     })
 
     for (let i = 0; i < 9; i++) {
@@ -997,6 +1006,8 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     form.toggle("Members allowed to use /song:browse", { defaultValue: world.getDynamicProperty("memberBrowse") as boolean ?? true });
     form.toggle("Members allowed to use /song:manage", { defaultValue: world.getDynamicProperty("memberManage") as boolean ?? true });
     form.toggle("Remove Update Message", { defaultValue: world.getDynamicProperty("updateMessage") as boolean ?? false });
+    form.toggle("Remove Nearby Actionbar for Music Box", { defaultValue: world.getDynamicProperty("removeNearBox") as boolean ?? false });
+    form.toggle("Remove Nearby Actionbar for Players", { defaultValue: world.getDynamicProperty("removeNearPlayer") as boolean ?? false });
     form.slider("Request Timeout", 3, 45, { defaultValue: (world.getDynamicProperty("requestTimeout") as number ?? 200) / 20, tooltip: "The time before a request times out. §7(If you have issues with requests, set the delay higher)" });
     form.submitButton("Save");
     const { canceled, formValues } = await form.show(player)
@@ -1007,7 +1018,9 @@ export async function openSongSettingsUI(player: MusicPlayer) {
     world.setDynamicProperty("memberBrowse", formValues[2]);
     world.setDynamicProperty("memberManage", formValues[3]);
     world.setDynamicProperty("updateMessage", formValues[4]);
-    world.setDynamicProperty("requestTimeout", (formValues[5] as number) * 20);
+    world.setDynamicProperty("removeNearBox", formValues[5])
+    world.setDynamicProperty("removeNearPlayer", formValues[6])
+    world.setDynamicProperty("requestTimeout", (formValues[7] as number) * 20);
 }
 
 world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
@@ -1015,11 +1028,6 @@ world.afterEvents.itemUse.subscribe(async ({ itemStack, source: player }) => {
         openSongBrowserUI(player);
     }
     if (itemStack.typeId == "song:manage") {
-        if (player.getItemCooldown("openBrowserDoubleClick") != 0) {
-            player.startItemCooldown("openBrowseDoubleClick", 0);
-            openSongBrowserUI(player);
-            return;
-        }
-        openSongManagerUI(player);
+        openSongSettingsUI(player);
     }
 })

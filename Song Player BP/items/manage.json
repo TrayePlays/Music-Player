@@ -9,7 +9,7 @@
         },
         "components": {
             "minecraft:display_name": {
-                "value": "Manage Song"
+                "value": "Music Player Settings"
             },
             "minecraft:icon": "manage"
         }
