@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Music Player BP v0.51",
+        "name": "Music Player BP v0.52",
         "description": "-by TrayePlays ty Cyanwalf for the textures",
         "min_engine_version": [
             1,
@@ -12,7 +12,7 @@
         "version": [
             1,
             0,
-            5
+            52
         ]
     },
     "metadata": {
@@ -48,6 +48,14 @@
         {
             "module_name": "@minecraft/server-ui",
             "version": "2.2.0"
+        },
+        {
+            "uuid": "3e172821-4607-43c7-84d4-b5cbfdbe290d",
+            "version": [
+                1,
+                0,
+                52
+            ]
         }
     ]
 }

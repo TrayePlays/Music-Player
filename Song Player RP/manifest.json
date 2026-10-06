@@ -1,7 +1,7 @@
 {
 	"format_version": 2,
 	"header": {
-		"name": "Music Player RP v0.51",
+		"name": "Music Player RP v0.52",
 		"description": "-by TrayePlays ty Cyanwalf for the textures",
 		"min_engine_version": [
 			1,
@@ -12,7 +12,7 @@
 		"version": [
 			1,
 			0,
-			5
+			52
 		]
 	},
 	"modules": [
@@ -23,6 +23,16 @@
 				1,
 				0,
 				0
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "76b7baa0-34f0-4cb0-bf0d-ea1ce59d7cf3",
+			"version": [
+				1,
+				0,
+				52
 			]
 		}
 	]
